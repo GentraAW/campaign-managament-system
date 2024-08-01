@@ -1,34 +1,35 @@
 package com.example.springboot_cms.controller;
 
+import com.example.springboot_cms.services.EmailMassLogService;
+import com.example.springboot_cms.model.CampaignInfoModel;
+import com.example.springboot_cms.repository.CampaignInfoRepository;
+
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
-
-import com.example.springboot_cms.services.MassEmailService;
-
-import lombok.RequiredArgsConstructor;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
-@RequestMapping("/mass-email")
-@RequiredArgsConstructor
+@RequestMapping("/api/mass-email")
 public class MassEmailController {
+    @Autowired
+    private EmailMassLogService emailMassLogService;
 
-    private final MassEmailService massEmailService;
+    @Autowired
+    private CampaignInfoRepository campaignInfoRepository;
 
-    // @PostMapping("/send/{campaignId}")
-    // public ResponseEntity<String> sendMassEmail(@PathVariable Long campaignId) {
-    //     massEmailService.sendMassEmails(campaignId);
-    //     return ResponseEntity.ok("Mass email process started");
-    // }
+    @PostMapping("/send/{campaignId}")
+    public ResponseEntity<String> sendMassEmail(@PathVariable Long campaignId) {
+        try {
+            CampaignInfoModel campaign = campaignInfoRepository.findById(campaignId)
+                    .orElseThrow(() -> new IllegalArgumentException("ID kampanye tidak valid"));
 
-    @PostMapping
-    public ResponseEntity<String> startMassEmailProcess(@RequestParam Long campaignId) {
-        massEmailService.startMassEmailProcess(campaignId);
-        return ResponseEntity.ok("Mass email process started");
+            emailMassLogService.addEmailsToQueueForCampaign(campaignId);
+            emailMassLogService.processEmailQueue(campaign);
+
+            return ResponseEntity.ok("Proses pengiriman berhasil! untuk kampanye ID: " + campaignId);
+        } catch (Exception e) {
+            return ResponseEntity.status(500).body("Terjadi kesalahan: " + e.getMessage());
+        }
     }
-
     
 }

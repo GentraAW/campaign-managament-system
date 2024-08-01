@@ -1,7 +1,11 @@
 package com.example.springboot_cms.controller;
 
 import java.util.List;
+import java.util.Optional;
 
+import org.apache.catalina.connector.Response;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -28,18 +32,45 @@ public class CustomerController {
         return customerService.findAll();
     }
 
+    @GetMapping("/{id}")
+    public ResponseEntity<?> getCustomerById(@PathVariable Long id) {
+        CustomerModel customer = customerService.findById(id);
+        if (customer == null) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Id : " + id + " tidak ditemukan");
+        }
+        return ResponseEntity.ok(customer);
+    }
+
     @PostMapping
-    public CustomerModel createCustomer(@RequestBody CustomerModel customer) {
-        return customerService.save(customer);
+    public ResponseEntity<CustomerModel> createCustomer(@RequestBody CustomerModel customer) {
+        try{
+            CustomerModel createCustomer = customerService.save(customer);
+            return ResponseEntity.status(HttpStatus.CREATED).body(createCustomer);
+        }catch(Exception e){
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        }
     }
 
     @PutMapping("/{id}")
-    public CustomerModel updateCustomer(@PathVariable Long id, @RequestBody CustomerModel customer) {
-        return customerService.update(id, customer);
+    public ResponseEntity<?> updateCustomer(@PathVariable Long id, @RequestBody CustomerModel customer) {
+        Optional<CustomerModel> customers = customerService.update(id, customer);
+        try{
+            if(customers.isPresent()){
+                return ResponseEntity.ok(customers.get());
+            }else{
+                return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Id : " + id + "Tidak tersedia");
+            }
+        }catch (Exception e){
+            return ResponseEntity.ok(e.getMessage());
+        }
     }
 
     @DeleteMapping("/{id}")
-    public void deleteCustomer(@PathVariable Long id) {
-        customerService.delete(id);
+    public ResponseEntity<?> deleteCustomer(@PathVariable Long id) {
+       boolean deleted = customerService.delete(id);
+        if (!deleted) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Id : " + id + " tidak ditemukan");
+        }
+        return ResponseEntity.ok("Berhasil dihapus " + id);
     }
 }

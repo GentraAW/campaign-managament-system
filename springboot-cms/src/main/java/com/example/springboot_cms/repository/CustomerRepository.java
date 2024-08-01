@@ -7,6 +7,6 @@ import com.example.springboot_cms.model.CustomerModel;
 
 @Repository
 public interface CustomerRepository extends JpaRepository<CustomerModel, Long> {
-    
+    CustomerModel findByEmail(String email);
 }
 

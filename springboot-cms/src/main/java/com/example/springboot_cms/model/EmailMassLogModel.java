@@ -1,10 +1,8 @@
 package com.example.springboot_cms.model;
 
 import lombok.*;
-
 import java.io.Serializable;
 import java.sql.Timestamp;
-
 import jakarta.persistence.*;
 
 @Data
@@ -38,4 +36,7 @@ public class EmailMassLogModel  implements Serializable{
 
     @Column(name = "date", unique = true)
     private Timestamp timestamp = new Timestamp(System.currentTimeMillis());
+
+    @Column(name = "esp_name")
+    private String espName;
 }

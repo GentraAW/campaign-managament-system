@@ -1,9 +1,7 @@
 package com.example.springboot_cms.model;
 
 import lombok.*;
-
 import java.io.Serializable;
-
 import jakarta.persistence.*;
 
 @Data
@@ -21,9 +19,10 @@ public class CampaignInfoModel implements Serializable {
     @Column(name = "name")
     private String name;
 
-    @Column(name = "description", unique = true)
+    @Column(name = "title")
+    private String title;
+
+    @Column(name = "description", columnDefinition = "TEXT", length = 10485760)
     private String description;
 
-    @Column(name= "target_audience")
-    private Long targetAudience;
 }

@@ -6,5 +6,7 @@ import com.example.springboot_cms.model.EmailMassLogModel;
 
 @Repository
 public interface EmailMassLogRepository extends JpaRepository<EmailMassLogModel, Long> {
-    
+     void deleteByCustomer_CustomerId(Long customerId);
+     void deleteByCampaign_CampaignInfoId(Long campaignId);
 }
+
